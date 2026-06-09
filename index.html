@@ -229,15 +229,18 @@
 
 <!-- Tarjeta principal -->
 <div class="card">
-  <div class="capture-area" id="capture-area" onclick="document.getElementById('file-input').click()">
+  <div class="capture-area" id="capture-area" onclick="document.getElementById('input-gallery').click()">
     <span class="capture-icon">📷</span>
-    <span class="capture-label">Toca para tomar o elegir foto</span>
+    <span class="capture-label">Toca para elegir foto</span>
   </div>
 
-  <input type="file" id="file-input" accept="image/*" capture="environment" style="display:none" />
+  <!-- Galería: abre directamente la app Fotos de iOS -->
+  <input type="file" id="input-gallery" accept="image/*" style="display:none" />
+  <!-- Cámara: abre directamente la cámara -->
+  <input type="file" id="input-camera" accept="image/*" capture="environment" style="display:none" />
 
   <div class="btn-row">
-    <button class="btn-secondary" onclick="document.getElementById('file-input').click()">📁 Galería</button>
+    <button class="btn-secondary" onclick="document.getElementById('input-gallery').click()">🖼️ Fotos</button>
     <button class="btn-send" id="btn-send" disabled onclick="sendBoleta()">Procesar →</button>
   </div>
 </div>
@@ -312,7 +315,7 @@
   let imageBase64 = null;
   let imageMediaType = 'image/jpeg';
 
-  document.getElementById('file-input').addEventListener('change', function(e) {
+  function handleFileChange(e) {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -332,7 +335,10 @@
       setStatus('hidden');
     };
     reader.readAsDataURL(file);
-  });
+  }
+
+  document.getElementById('input-gallery').addEventListener('change', handleFileChange);
+  document.getElementById('input-camera').addEventListener('change', handleFileChange);
 
   // ── Envío al Apps Script ───────────────────────────────────
   async function sendBoleta() {
@@ -415,7 +421,8 @@
 
   function resetCapture() {
     imageBase64 = null;
-    document.getElementById('file-input').value = '';
+    document.getElementById('input-gallery').value = '';
+    document.getElementById('input-camera').value = '';
     document.getElementById('capture-area').innerHTML = `
       <span class="capture-icon">📷</span>
       <span class="capture-label">Toca para tomar o elegir foto</span>`;
