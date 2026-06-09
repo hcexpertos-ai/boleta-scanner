@@ -11,7 +11,6 @@
   <title>Boleta IA</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
       --bg: #0f0f13;
       --card: #1a1a22;
@@ -23,7 +22,6 @@
       --success: #48cfad;
       --radius: 18px;
     }
-
     body {
       background: var(--bg);
       color: var(--text);
@@ -35,28 +33,104 @@
       padding: 0 0 40px;
     }
 
+    /* ── LOGIN ── */
+    #login-screen {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+    }
+    #login-screen .logo {
+      font-size: 4rem;
+      margin-bottom: 12px;
+    }
+    #login-screen h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    #login-screen p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 40px;
+    }
+    .login-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      width: 100%;
+      max-width: 380px;
+    }
+    .login-card label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .login-card input {
+      width: 100%;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 1rem;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .login-card input:focus { outline: none; border-color: var(--accent); }
+    .btn-login {
+      width: 100%;
+      padding: 16px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .btn-login:active { opacity: 0.85; }
+    .btn-login:disabled { background: #333; color: #666; cursor: not-allowed; }
+    #login-error {
+      color: var(--danger);
+      font-size: 0.85rem;
+      text-align: center;
+      margin-top: 14px;
+      display: none;
+    }
+    #login-error.visible { display: block; }
+
+    /* ── APP ── */
+    #app-screen { display: none; width: 100%; }
+
     header {
       width: 100%;
       padding: 56px 24px 20px;
       text-align: center;
       background: linear-gradient(180deg, #1a1a2e 0%, transparent 100%);
+      position: relative;
     }
-
     header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.5px; }
     header p  { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
 
-    .config-banner {
-      background: #2a1a00;
-      border: 1px solid #ff9800;
-      border-radius: 12px;
-      padding: 12px 16px;
-      margin: 0 20px 16px;
-      font-size: 0.82rem;
-      color: #ffcc80;
-      text-align: center;
-      display: none;
+    .user-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #1a1a2e;
+      border: 1px solid #333;
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 10px;
+      cursor: pointer;
     }
-    .config-banner.visible { display: block; }
+    .user-badge span { color: var(--accent2); font-weight: 600; }
 
     .card {
       background: var(--card);
@@ -66,7 +140,6 @@
       width: calc(100% - 40px);
     }
 
-    /* ── Zona de captura ── */
     .capture-area {
       border: 2px dashed #333;
       border-radius: 14px;
@@ -79,23 +152,13 @@
       cursor: pointer;
       transition: border-color 0.2s;
       overflow: hidden;
-      position: relative;
     }
     .capture-area:active { border-color: var(--accent); }
-    .capture-area img {
-      width: 100%;
-      max-height: 340px;
-      object-fit: contain;
-      border-radius: 10px;
-    }
+    .capture-area img { width: 100%; max-height: 340px; object-fit: contain; border-radius: 10px; }
     .capture-icon { font-size: 3rem; opacity: 0.4; }
     .capture-label { color: var(--muted); font-size: 0.9rem; }
 
-    .btn-row {
-      display: flex;
-      gap: 10px;
-      margin-top: 14px;
-    }
+    .btn-row { display: flex; gap: 10px; margin-top: 14px; }
 
     button {
       flex: 1;
@@ -108,13 +171,11 @@
       transition: opacity 0.15s, transform 0.1s;
     }
     button:active { opacity: 0.8; transform: scale(0.97); }
-
-    .btn-primary   { background: var(--accent);  color: #fff; }
+    .btn-primary   { background: var(--accent); color: #fff; }
     .btn-secondary { background: #2a2a38; color: var(--text); }
     .btn-send      { background: var(--accent2); color: #111; }
     .btn-send:disabled { background: #333; color: #666; cursor: not-allowed; }
 
-    /* ── Estado / resultado ── */
     #status-card { display: none; }
     #status-card.visible { display: block; }
 
@@ -124,9 +185,9 @@
       font-size: 0.9rem;
       line-height: 1.6;
     }
-    .status-box.loading  { background: #1a1a30; border: 1px solid var(--accent); }
-    .status-box.success  { background: #0d2b22; border: 1px solid var(--success); }
-    .status-box.error    { background: #2b0d0d; border: 1px solid var(--danger); }
+    .status-box.loading { background: #1a1a30; border: 1px solid var(--accent); }
+    .status-box.success { background: #0d2b22; border: 1px solid var(--success); }
+    .status-box.error   { background: #2b0d0d; border: 1px solid var(--danger); }
 
     .spinner {
       display: inline-block;
@@ -155,11 +216,7 @@
     .result-tile .val { font-size: 1.5rem; font-weight: 700; color: var(--success); }
     .result-tile .lbl { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
 
-    .product-list {
-      margin-top: 14px;
-      max-height: 220px;
-      overflow-y: auto;
-    }
+    .product-list { margin-top: 14px; max-height: 220px; overflow-y: auto; }
     .product-item {
       display: flex;
       justify-content: space-between;
@@ -172,282 +229,257 @@
     .product-item:last-child { border-bottom: none; }
     .product-name { flex: 1; }
     .product-price { color: var(--accent2); font-weight: 600; white-space: nowrap; }
-
-    /* ── Config modal ── */
-    .overlay {
-      display: none;
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.7);
-      z-index: 100;
-      align-items: flex-end;
-    }
-    .overlay.open { display: flex; }
-    .modal {
-      background: var(--card);
-      border-radius: var(--radius) var(--radius) 0 0;
-      padding: 28px 24px 48px;
-      width: 100%;
-    }
-    .modal h2 { font-size: 1.1rem; margin-bottom: 20px; }
-    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; }
-    input[type=text], input[type=password] {
-      width: 100%;
-      background: #111;
-      border: 1px solid #333;
-      border-radius: 10px;
-      color: var(--text);
-      font-size: 0.9rem;
-      padding: 12px 14px;
-      margin-bottom: 16px;
-    }
-    input:focus { outline: none; border-color: var(--accent); }
-
-    .gear-btn {
-      position: fixed;
-      top: 52px; right: 20px;
-      background: #222;
-      border: none;
-      border-radius: 50%;
-      width: 38px; height: 38px;
-      font-size: 1.1rem;
-      cursor: pointer;
-      color: var(--muted);
-      flex: none;
-    }
   </style>
 </head>
 <body>
 
-<header>
-  <h1>📄 Boleta IA</h1>
-  <p>Foto → Google Sheets automático</p>
-</header>
+<!-- ══════════════════════════════════════
+     PANTALLA DE LOGIN
+══════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="logo">🧾</div>
+  <h1>Boleta IA</h1>
+  <p>Foto a Google Sheets automatico</p>
 
-<button class="gear-btn" onclick="openConfig()" title="Configuración">⚙️</button>
-
-<div class="config-banner" id="config-banner">
-  ⚠️ Falta configurar la URL del script. Toca ⚙️ arriba.
-</div>
-
-<!-- Tarjeta principal -->
-<div class="card">
-  <div class="capture-area" id="capture-area" onclick="document.getElementById('input-gallery').click()">
-    <span class="capture-icon">📷</span>
-    <span class="capture-label">Toca para elegir foto</span>
-  </div>
-
-  <!-- Galería: abre directamente la app Fotos de iOS -->
-  <input type="file" id="input-gallery" accept="image/*" style="display:none" />
-  <!-- Cámara: abre directamente la cámara -->
-  <input type="file" id="input-camera" accept="image/*" capture="environment" style="display:none" />
-
-  <div class="btn-row">
-    <button class="btn-secondary" onclick="document.getElementById('input-gallery').click()">🖼️ Fotos</button>
-    <button class="btn-send" id="btn-send" disabled onclick="sendBoleta()">Procesar →</button>
+  <div class="login-card">
+    <label>Usuario</label>
+    <input type="text" id="login-user" placeholder="tu usuario" autocomplete="username" />
+    <label>Contrasena</label>
+    <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" />
+    <button class="btn-login" id="btn-login" onclick="doLogin()">Ingresar</button>
+    <div id="login-error">Usuario o contrasena incorrectos</div>
   </div>
 </div>
 
-<!-- Resultado -->
-<div class="card" id="status-card">
-  <div id="status-box"></div>
-</div>
+<!-- ══════════════════════════════════════
+     PANTALLA PRINCIPAL (post-login)
+══════════════════════════════════════ -->
+<div id="app-screen">
+  <header>
+    <h1>Boleta IA</h1>
+    <p>Foto a Google Sheets automatico</p>
+    <div class="user-badge" onclick="doLogout()">
+      Hola, <span id="user-display">—</span> &nbsp;· Salir
+    </div>
+  </header>
 
-<!-- Modal configuración -->
-<div class="overlay" id="overlay" onclick="closeConfigIfOutside(event)">
-  <div class="modal">
-    <h2>⚙️ Configuración</h2>
-    <label>URL del Google Apps Script</label>
-    <input type="text" id="cfg-url" placeholder="https://script.google.com/macros/s/.../exec" />
-    <label>Nombre de tu hoja (pestaña)</label>
-    <input type="text" id="cfg-sheet" placeholder="Boletas" />
-    <button class="btn-primary" style="width:100%" onclick="saveConfig()">Guardar</button>
+  <div class="card">
+    <div class="capture-area" id="capture-area">
+      <span class="capture-icon">📷</span>
+      <span class="capture-label">Toca para elegir foto</span>
+    </div>
+
+    <!-- Un solo input sin capture= para que Android muestre galería + cámara -->
+    <input type="file" id="input-file" accept="image/*" style="display:none" />
+    <!-- Input con cámara directa -->
+    <input type="file" id="input-camera" accept="image/*" capture="environment" style="display:none" />
+
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="document.getElementById('input-file').click()">🖼️ Galeria</button>
+      <button class="btn-secondary" onclick="document.getElementById('input-camera').click()">📷 Camara</button>
+      <button class="btn-send" id="btn-send" disabled onclick="sendBoleta()">Procesar →</button>
+    </div>
+  </div>
+
+  <div class="card" id="status-card">
+    <div id="status-box"></div>
   </div>
 </div>
 
 <script>
-  // ── Configuración persistente ──────────────────────────────
-  const CFG_KEY = 'boleta_config';
+  // ══════════════════════════════════════════════════════
+  // CONFIGURACION — pon aqui la URL de tu script CENTRAL
+  // ══════════════════════════════════════════════════════
+  var CENTRAL_URL = 'PON_AQUI_LA_URL_DE_TU_SCRIPT_CENTRAL';
 
-  // URL pre-configurada del Apps Script
-  const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-iTsJsNFbuKj2cBJ4s8JmgarlLNWx8RqGkO-4Rt0McWmpzRIZp7vb9uPRh5ynTUBbEw/exec';
+  var SESSION_KEY = 'boleta_session';
 
-  function loadConfig() {
+  // ── Sesion ────────────────────────────────────────────
+  function getSession() {
+    try { return JSON.parse(localStorage.getItem(SESSION_KEY)) || null; }
+    catch(e) { return null; }
+  }
+
+  function saveSession(data) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(data));
+  }
+
+  function clearSession() {
+    localStorage.removeItem(SESSION_KEY);
+  }
+
+  // ── Login ─────────────────────────────────────────────
+  async function doLogin() {
+    var user = document.getElementById('login-user').value.trim();
+    var pass = document.getElementById('login-pass').value.trim();
+    var btn  = document.getElementById('btn-login');
+    var err  = document.getElementById('login-error');
+
+    if (!user || !pass) { err.textContent = 'Completa usuario y contrasena'; err.classList.add('visible'); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Verificando...';
+    err.classList.remove('visible');
+
     try {
-      const saved = JSON.parse(localStorage.getItem(CFG_KEY)) || {};
-      if (!saved.scriptUrl) saved.scriptUrl = DEFAULT_SCRIPT_URL;
-      if (!saved.sheetName) saved.sheetName = 'Boletas';
-      return saved;
+      var body = JSON.stringify({ action: 'login', usuario: user, password: pass });
+      var resp = await fetch(CENTRAL_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: body,
+        redirect: 'follow'
+      });
+      var data = await resp.json();
+
+      if (data.success) {
+        saveSession({ usuario: user, scriptUrl: data.script_url, sheetName: data.sheet_name || 'Boletas' });
+        showApp(user);
+      } else {
+        err.textContent = data.error || 'Usuario o contrasena incorrectos';
+        err.classList.add('visible');
+      }
+    } catch(e) {
+      err.textContent = 'Error de red: ' + e.message;
+      err.classList.add('visible');
     }
-    catch { return { scriptUrl: DEFAULT_SCRIPT_URL, sheetName: 'Boletas' }; }
+
+    btn.disabled = false;
+    btn.textContent = 'Ingresar';
   }
 
-  function saveConfig() {
-    const cfg = {
-      scriptUrl: document.getElementById('cfg-url').value.trim(),
-      sheetName: document.getElementById('cfg-sheet').value.trim() || 'Boletas'
-    };
-    localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
-    document.getElementById('overlay').classList.remove('open');
-    checkConfig();
+  function doLogout() {
+    if (!confirm('Cerrar sesion?')) return;
+    clearSession();
+    document.getElementById('app-screen').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('login-user').value = '';
+    document.getElementById('login-pass').value = '';
   }
 
-  function openConfig() {
-    const cfg = loadConfig();
-    document.getElementById('cfg-url').value   = cfg.scriptUrl || '';
-    document.getElementById('cfg-sheet').value = cfg.sheetName || 'Boletas';
-    document.getElementById('overlay').classList.add('open');
+  function showApp(usuario) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'flex';
+    document.getElementById('app-screen').style.flexDirection = 'column';
+    document.getElementById('app-screen').style.alignItems = 'center';
+    document.getElementById('user-display').textContent = usuario;
   }
 
-  function closeConfigIfOutside(e) {
-    if (e.target === document.getElementById('overlay'))
-      document.getElementById('overlay').classList.remove('open');
-  }
-
-  function checkConfig() {
-    const cfg = loadConfig();
-    const banner = document.getElementById('config-banner');
-    if (!cfg.scriptUrl) {
-      banner.classList.add('visible');
-    } else {
-      banner.classList.remove('visible');
-    }
-  }
-
-  // ── Manejo de imagen ───────────────────────────────────────
-  let imageBase64 = null;
-  let imageMediaType = 'image/jpeg';
+  // ── Imagen ────────────────────────────────────────────
+  var imageBase64 = null;
+  var imageMediaType = 'image/jpeg';
 
   function handleFileChange(e) {
-    const file = e.target.files[0];
+    var file = e.target.files[0];
     if (!file) return;
-
     imageMediaType = file.type || 'image/jpeg';
-
-    const reader = new FileReader();
+    var reader = new FileReader();
     reader.onload = function(ev) {
-      const dataUrl = ev.target.result;
-      // Extraer solo el base64 (sin el prefijo data:image/...;base64,)
+      var dataUrl = ev.target.result;
       imageBase64 = dataUrl.split(',')[1];
-
-      // Mostrar preview
-      const area = document.getElementById('capture-area');
-      area.innerHTML = `<img src="${dataUrl}" alt="Boleta" />`;
-
+      var area = document.getElementById('capture-area');
+      area.innerHTML = '<img src="' + dataUrl + '" alt="Boleta" />';
       document.getElementById('btn-send').disabled = false;
       setStatus('hidden');
     };
     reader.readAsDataURL(file);
   }
 
-  document.getElementById('input-gallery').addEventListener('change', handleFileChange);
+  document.getElementById('input-file').addEventListener('change', handleFileChange);
   document.getElementById('input-camera').addEventListener('change', handleFileChange);
 
-  // ── Envío al Apps Script ───────────────────────────────────
-  async function sendBoleta() {
-    const cfg = loadConfig();
-    if (!cfg.scriptUrl) {
-      openConfig();
-      return;
+  // click en el area de captura abre galeria
+  document.getElementById('capture-area').addEventListener('click', function() {
+    if (!document.querySelector('#capture-area img')) {
+      document.getElementById('input-file').click();
     }
+  });
+
+  // ── Envio ─────────────────────────────────────────────
+  async function sendBoleta() {
+    var session = getSession();
+    if (!session || !session.scriptUrl) { doLogout(); return; }
     if (!imageBase64) return;
 
     document.getElementById('btn-send').disabled = true;
-    setStatus('loading', '<span class="spinner"></span> Analizando boleta con IA…');
+    setStatus('loading', '<span class="spinner"></span> Analizando boleta con IA...');
 
     try {
-      const body = JSON.stringify({
+      var body = JSON.stringify({
         image_base64: imageBase64,
         media_type: imageMediaType,
-        sheet_name: cfg.sheetName
+        sheet_name: session.sheetName
       });
 
-      // Content-Type text/plain evita CORS preflight en iOS Safari
-      const resp = await fetch(cfg.scriptUrl, {
+      var resp = await fetch(session.scriptUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain' },
-        body,
+        body: body,
         redirect: 'follow'
       });
 
-      const data = await resp.json();
+      var data = await resp.json();
 
       if (data.success) {
         setStatus('success', buildSuccessHtml(data));
         resetCapture();
       } else {
-        setStatus('error', `❌ Error: ${data.error || 'Respuesta inesperada'}`);
+        setStatus('error', 'Error: ' + (data.error || 'Respuesta inesperada'));
         document.getElementById('btn-send').disabled = false;
       }
-
-    } catch (err) {
-      setStatus('error', `❌ Error de red: ${err.message}`);
+    } catch(e) {
+      setStatus('error', 'Error de red: ' + e.message);
       document.getElementById('btn-send').disabled = false;
     }
   }
 
   function buildSuccessHtml(data) {
-    const fmt = (n) => n != null ? `$${Number(n).toLocaleString('es-CL')}` : '—';
-    let html = `
-      <div style="color:var(--success);font-weight:700;font-size:1rem;margin-bottom:12px">
-        ✅ Guardado en Google Sheets
-      </div>
-      <div class="result-grid">
-        <div class="result-tile">
-          <div class="val">${data.items_count}</div>
-          <div class="lbl">Productos</div>
-        </div>
-        <div class="result-tile">
-          <div class="val">${fmt(data.total_boleta)}</div>
-          <div class="lbl">Total boleta</div>
-        </div>
-        <div class="result-tile" style="grid-column:span 2">
-          <div class="val" style="font-size:1rem">${data.comercio || '—'}</div>
-          <div class="lbl">Comercio · ${data.fecha || '—'}</div>
-        </div>
-      </div>`;
-
+    var fmt = function(n) { return n != null ? '$' + Number(n).toLocaleString('es-CL') : '-'; };
+    var html = '<div style="color:var(--success);font-weight:700;font-size:1rem;margin-bottom:12px">Guardado en Google Sheets</div>';
+    html += '<div class="result-grid">';
+    html += '<div class="result-tile"><div class="val">' + data.items_count + '</div><div class="lbl">Productos</div></div>';
+    html += '<div class="result-tile"><div class="val">' + fmt(data.total_boleta) + '</div><div class="lbl">Total boleta</div></div>';
+    html += '<div class="result-tile" style="grid-column:span 2"><div class="val" style="font-size:1rem">' + (data.comercio || '-') + '</div><div class="lbl">Comercio - ' + (data.fecha || '-') + '</div></div>';
+    html += '</div>';
     if (data.items && data.items.length > 0) {
-      html += `<div class="product-list">`;
-      data.items.forEach(item => {
-        html += `
-          <div class="product-item">
-            <span class="product-name">${item.nombre}</span>
-            <span class="product-price">${fmt(item.total_item)}</span>
-          </div>`;
+      html += '<div class="product-list">';
+      data.items.forEach(function(item) {
+        html += '<div class="product-item"><span class="product-name">' + item.nombre + '</span><span class="product-price">' + fmt(item.total_item) + '</span></div>';
       });
-      html += `</div>`;
+      html += '</div>';
     }
-
     return html;
   }
 
   function resetCapture() {
     imageBase64 = null;
-    document.getElementById('input-gallery').value = '';
+    document.getElementById('input-file').value = '';
     document.getElementById('input-camera').value = '';
-    document.getElementById('capture-area').innerHTML = `
-      <span class="capture-icon">📷</span>
-      <span class="capture-label">Toca para tomar o elegir foto</span>`;
+    document.getElementById('capture-area').innerHTML = '<span class="capture-icon">📷</span><span class="capture-label">Toca para tomar o elegir foto</span>';
+    document.getElementById('btn-send').disabled = true;
   }
 
-  // ── UI helpers ─────────────────────────────────────────────
   function setStatus(type, html) {
-    const card = document.getElementById('status-card');
-    const box  = document.getElementById('status-box');
-
-    if (type === 'hidden') {
-      card.classList.remove('visible');
-      return;
-    }
-
+    var card = document.getElementById('status-card');
+    var box  = document.getElementById('status-box');
+    if (type === 'hidden') { card.classList.remove('visible'); return; }
     card.classList.add('visible');
-    box.className = `status-box ${type}`;
+    box.className = 'status-box ' + type;
     box.innerHTML = html;
     card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
-  // ── Init ───────────────────────────────────────────────────
-  checkConfig();
+  // ── Enter en login ────────────────────────────────────
+  document.getElementById('login-pass').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  // ── Init: revisar sesion guardada ─────────────────────
+  (function() {
+    var session = getSession();
+    if (session && session.usuario && session.scriptUrl) {
+      showApp(session.usuario);
+    }
+  })();
 </script>
 </body>
 </html>
