@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Boleta IA" />
+  <title>Boleta IA</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f13;
+      --card: #1a1a22;
+      --accent: #6c63ff;
+      --accent2: #48cfad;
+      --text: #f0f0f5;
+      --muted: #888;
+      --danger: #ff6b6b;
+      --success: #48cfad;
+      --radius: 18px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0 40px;
+    }
+
+    header {
+      width: 100%;
+      padding: 56px 24px 20px;
+      text-align: center;
+      background: linear-gradient(180deg, #1a1a2e 0%, transparent 100%);
+    }
+
+    header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.5px; }
+    header p  { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+
+    .config-banner {
+      background: #2a1a00;
+      border: 1px solid #ff9800;
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin: 0 20px 16px;
+      font-size: 0.82rem;
+      color: #ffcc80;
+      text-align: center;
+      display: none;
+    }
+    .config-banner.visible { display: block; }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin: 0 20px 16px;
+      width: calc(100% - 40px);
+    }
+
+    /* ── Zona de captura ── */
+    .capture-area {
+      border: 2px dashed #333;
+      border-radius: 14px;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      overflow: hidden;
+      position: relative;
+    }
+    .capture-area:active { border-color: var(--accent); }
+    .capture-area img {
+      width: 100%;
+      max-height: 340px;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+    .capture-icon { font-size: 3rem; opacity: 0.4; }
+    .capture-label { color: var(--muted); font-size: 0.9rem; }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    button {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    button:active { opacity: 0.8; transform: scale(0.97); }
+
+    .btn-primary   { background: var(--accent);  color: #fff; }
+    .btn-secondary { background: #2a2a38; color: var(--text); }
+    .btn-send      { background: var(--accent2); color: #111; }
+    .btn-send:disabled { background: #333; color: #666; cursor: not-allowed; }
+
+    /* ── Estado / resultado ── */
+    #status-card { display: none; }
+    #status-card.visible { display: block; }
+
+    .status-box {
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+    .status-box.loading  { background: #1a1a30; border: 1px solid var(--accent); }
+    .status-box.success  { background: #0d2b22; border: 1px solid var(--success); }
+    .status-box.error    { background: #2b0d0d; border: 1px solid var(--danger); }
+
+    .spinner {
+      display: inline-block;
+      width: 18px; height: 18px;
+      border: 2px solid #444;
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .result-tile {
+      background: #0f2b20;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+    .result-tile .val { font-size: 1.5rem; font-weight: 700; color: var(--success); }
+    .result-tile .lbl { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+    .product-list {
+      margin-top: 14px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    .product-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 8px 0;
+      border-bottom: 1px solid #222;
+      font-size: 0.85rem;
+      gap: 8px;
+    }
+    .product-item:last-child { border-bottom: none; }
+    .product-name { flex: 1; }
+    .product-price { color: var(--accent2); font-weight: 600; white-space: nowrap; }
+
+    /* ── Config modal ── */
+    .overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 100;
+      align-items: flex-end;
+    }
+    .overlay.open { display: flex; }
+    .modal {
+      background: var(--card);
+      border-radius: var(--radius) var(--radius) 0 0;
+      padding: 28px 24px 48px;
+      width: 100%;
+    }
+    .modal h2 { font-size: 1.1rem; margin-bottom: 20px; }
+    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; }
+    input[type=text], input[type=password] {
+      width: 100%;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 0.9rem;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
+    input:focus { outline: none; border-color: var(--accent); }
+
+    .gear-btn {
+      position: fixed;
+      top: 52px; right: 20px;
+      background: #222;
+      border: none;
+      border-radius: 50%;
+      width: 38px; height: 38px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      color: var(--muted);
+      flex: none;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>📄 Boleta IA</h1>
+  <p>Foto → Google Sheets automático</p>
+</header>
+
+<button class="gear-btn" onclick="openConfig()" title="Configuración">⚙️</button>
+
+<div class="config-banner" id="config-banner">
+  ⚠️ Falta configurar la URL del script. Toca ⚙️ arriba.
+</div>
+
+<!-- Tarjeta principal -->
+<div class="card">
+  <div class="capture-area" id="capture-area" onclick="document.getElementById('file-input').click()">
+    <span class="capture-icon">📷</span>
+    <span class="capture-label">Toca para tomar o elegir foto</span>
+  </div>
+
+  <input type="file" id="file-input" accept="image/*" capture="environment" style="display:none" />
+
+  <div class="btn-row">
+    <button class="btn-secondary" onclick="document.getElementById('file-input').click()">📁 Galería</button>
+    <button class="btn-send" id="btn-send" disabled onclick="sendBoleta()">Procesar →</button>
+  </div>
+</div>
+
+<!-- Resultado -->
+<div class="card" id="status-card">
+  <div id="status-box"></div>
+</div>
+
+<!-- Modal configuración -->
+<div class="overlay" id="overlay" onclick="closeConfigIfOutside(event)">
+  <div class="modal">
+    <h2>⚙️ Configuración</h2>
+    <label>URL del Google Apps Script</label>
+    <input type="text" id="cfg-url" placeholder="https://script.google.com/macros/s/.../exec" />
+    <label>Nombre de tu hoja (pestaña)</label>
+    <input type="text" id="cfg-sheet" placeholder="Boletas" />
+    <button class="btn-primary" style="width:100%" onclick="saveConfig()">Guardar</button>
+  </div>
+</div>
+
+<script>
+  // ── Configuración persistente ──────────────────────────────
+  const CFG_KEY = 'boleta_config';
+
+  function loadConfig() {
+    try { return JSON.parse(localStorage.getItem(CFG_KEY)) || {}; }
+    catch { return {}; }
+  }
+
+  function saveConfig() {
+    const cfg = {
+      scriptUrl: document.getElementById('cfg-url').value.trim(),
+      sheetName: document.getElementById('cfg-sheet').value.trim() || 'Boletas'
+    };
+    localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+    document.getElementById('overlay').classList.remove('open');
+    checkConfig();
+  }
+
+  function openConfig() {
+    const cfg = loadConfig();
+    document.getElementById('cfg-url').value   = cfg.scriptUrl || '';
+    document.getElementById('cfg-sheet').value = cfg.sheetName || 'Boletas';
+    document.getElementById('overlay').classList.add('open');
+  }
+
+  function closeConfigIfOutside(e) {
+    if (e.target === document.getElementById('overlay'))
+      document.getElementById('overlay').classList.remove('open');
+  }
+
+  function checkConfig() {
+    const cfg = loadConfig();
+    const banner = document.getElementById('config-banner');
+    if (!cfg.scriptUrl) {
+      banner.classList.add('visible');
+    } else {
+      banner.classList.remove('visible');
+    }
+  }
+
+  // ── Manejo de imagen ───────────────────────────────────────
+  let imageBase64 = null;
+  let imageMediaType = 'image/jpeg';
+
+  document.getElementById('file-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    imageMediaType = file.type || 'image/jpeg';
+
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const dataUrl = ev.target.result;
+      // Extraer solo el base64 (sin el prefijo data:image/...;base64,)
+      imageBase64 = dataUrl.split(',')[1];
+
+      // Mostrar preview
+      const area = document.getElementById('capture-area');
+      area.innerHTML = `<img src="${dataUrl}" alt="Boleta" />`;
+
+      document.getElementById('btn-send').disabled = false;
+      setStatus('hidden');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // ── Envío al Apps Script ───────────────────────────────────
+  async function sendBoleta() {
+    const cfg = loadConfig();
+    if (!cfg.scriptUrl) {
+      openConfig();
+      return;
+    }
+    if (!imageBase64) return;
+
+    document.getElementById('btn-send').disabled = true;
+    setStatus('loading', '<span class="spinner"></span> Analizando boleta con IA…');
+
+    try {
+      const body = JSON.stringify({
+        image_base64: imageBase64,
+        media_type: imageMediaType,
+        sheet_name: cfg.sheetName
+      });
+
+      const resp = await fetch(cfg.scriptUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body
+      });
+
+      const data = await resp.json();
+
+      if (data.success) {
+        setStatus('success', buildSuccessHtml(data));
+        resetCapture();
+      } else {
+        setStatus('error', `❌ Error: ${data.error || 'Respuesta inesperada'}`);
+        document.getElementById('btn-send').disabled = false;
+      }
+
+    } catch (err) {
+      setStatus('error', `❌ Error de red: ${err.message}`);
+      document.getElementById('btn-send').disabled = false;
+    }
+  }
+
+  function buildSuccessHtml(data) {
+    const fmt = (n) => n != null ? `$${Number(n).toLocaleString('es-CL')}` : '—';
+    let html = `
+      <div style="color:var(--success);font-weight:700;font-size:1rem;margin-bottom:12px">
+        ✅ Guardado en Google Sheets
+      </div>
+      <div class="result-grid">
+        <div class="result-tile">
+          <div class="val">${data.items_count}</div>
+          <div class="lbl">Productos</div>
+        </div>
+        <div class="result-tile">
+          <div class="val">${fmt(data.total_boleta)}</div>
+          <div class="lbl">Total boleta</div>
+        </div>
+        <div class="result-tile" style="grid-column:span 2">
+          <div class="val" style="font-size:1rem">${data.comercio || '—'}</div>
+          <div class="lbl">Comercio · ${data.fecha || '—'}</div>
+        </div>
+      </div>`;
+
+    if (data.items && data.items.length > 0) {
+      html += `<div class="product-list">`;
+      data.items.forEach(item => {
+        html += `
+          <div class="product-item">
+            <span class="product-name">${item.nombre}</span>
+            <span class="product-price">${fmt(item.total_item)}</span>
+          </div>`;
+      });
+      html += `</div>`;
+    }
+
+    return html;
+  }
+
+  function resetCapture() {
+    imageBase64 = null;
+    document.getElementById('file-input').value = '';
+    document.getElementById('capture-area').innerHTML = `
+      <span class="capture-icon">📷</span>
+      <span class="capture-label">Toca para tomar o elegir foto</span>`;
+  }
+
+  // ── UI helpers ─────────────────────────────────────────────
+  function setStatus(type, html) {
+    const card = document.getElementById('status-card');
+    const box  = document.getElementById('status-box');
+
+    if (type === 'hidden') {
+      card.classList.remove('visible');
+      return;
+    }
+
+    card.classList.add('visible');
+    box.className = `status-box ${type}`;
+    box.innerHTML = html;
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // ── Init ───────────────────────────────────────────────────
+  checkConfig();
+</script>
+</body>
+</html>
