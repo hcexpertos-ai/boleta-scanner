@@ -263,9 +263,17 @@
   // ── Configuración persistente ──────────────────────────────
   const CFG_KEY = 'boleta_config';
 
+  // URL pre-configurada del Apps Script
+  const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-iTsJsNFbuKj2cBJ4s8JmgarlLNWx8RqGkO-4Rt0McWmpzRIZp7vb9uPRh5ynTUBbEw/exec';
+
   function loadConfig() {
-    try { return JSON.parse(localStorage.getItem(CFG_KEY)) || {}; }
-    catch { return {}; }
+    try {
+      const saved = JSON.parse(localStorage.getItem(CFG_KEY)) || {};
+      if (!saved.scriptUrl) saved.scriptUrl = DEFAULT_SCRIPT_URL;
+      if (!saved.sheetName) saved.sheetName = 'Boletas';
+      return saved;
+    }
+    catch { return { scriptUrl: DEFAULT_SCRIPT_URL, sheetName: 'Boletas' }; }
   }
 
   function saveConfig() {
