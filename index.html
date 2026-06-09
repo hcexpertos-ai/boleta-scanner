@@ -353,10 +353,12 @@
         sheet_name: cfg.sheetName
       });
 
+      // Content-Type text/plain evita CORS preflight en iOS Safari
       const resp = await fetch(cfg.scriptUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body
+        headers: { 'Content-Type': 'text/plain' },
+        body,
+        redirect: 'follow'
       });
 
       const data = await resp.json();
